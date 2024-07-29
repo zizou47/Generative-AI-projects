@@ -4,7 +4,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import GooglePalmEmbeddings
 from langchain.llms import google_Palm
 from langchain.vectorstores import FAISS
-from langchain.chains import Conversational_Retrieval
+from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from dotenv import load_dotenv
 
@@ -31,4 +31,11 @@ def get_text_chunks(text):
 
 def get_vector_store(text_chunks):
      embeddings = GooglePalmEmbeddings()
-     
+     vector_store = FAISS.from_texts(text_chunks, embedding = embeddings)
+     return vector_store
+
+def get_conversational_chain(vector_store): # remember previous query this help to answer question
+     llm = google_Palm()
+     memory = ConversationBufferMemory(memory_key= "chat history", return_messages=True)
+     conversation_chain = ConversationalRetrievalChain.from_llm(llm=llm, retriever= vector_store.as_retriever(), memory= memory)
+     return conversation_chain
